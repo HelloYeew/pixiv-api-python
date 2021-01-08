@@ -57,12 +57,17 @@ from function import *
 # Main Menu
 while True:
     print("What you want to do:")
-    print("1.Fetch Illustration Detail")
+    print("1.Fetch Full Illustration Detail By ID")
+    print("2.Fetch User Detail")
     menu = input("Press number from menu to continue : ")
     if menu.isnumeric():
         menu = int(menu)
         if menu == 1:
-            fetch_illus_information(client)
+            illustration_id = input("Illustration ID : ")
+            fetch_illus_information(client, illustration_id)
+        elif menu == 2:
+            user_id = input("User ID : ")
+            fetch_user_information(client, user_id)
         else:
             print("Incorrect input")
             print()
