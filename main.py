@@ -34,9 +34,6 @@ print()
 # menu function
 
 
-# turn on and turn off dev mode here
-dev = True
-
 # login
 from pixivapi import Client
 client = Client()
@@ -59,6 +56,8 @@ while True:
     print("What you want to do:")
     print("1.Fetch Full Illustration Detail By ID")
     print("2.Fetch User Detail")
+    print("3.Download all illustration from the artist")
+    print("0.Exit")
     menu = input("Press number from menu to continue : ")
     if menu.isnumeric():
         menu = int(menu)
@@ -68,6 +67,12 @@ while True:
         elif menu == 2:
             user_id = input("User ID : ")
             fetch_user_information(client, user_id)
+        elif menu == 3:
+            artist_id = input("Put an artist ID that you want to download : ")
+            download_all_illustration(client, artist_id)
+        elif menu == 0:
+            print("Bye!")
+            sys.exit()
         else:
             print("Incorrect input")
             print()

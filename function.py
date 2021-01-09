@@ -1,7 +1,12 @@
-import pixivapi
+from pathlib import Path
+from pixivapi import Size
 import datetime
-from pixivapi import models
+from pixivapi import ContentType
+from tqdm import tqdm
+import os
 
+# turn on and turn off dev mode here
+dev = False
 
 def fetch_illus_information(client, illustration_id):
     pic = client.fetch_illustration(illustration_id)
@@ -107,3 +112,26 @@ def fetch_user_information(client, user_id):
     print(f"Workspace Image URL : {workspace['workspace_image_url']}")
     print()
 
+def download_all_illustration(client, artist_id):
+    response = client.fetch_user_illustrations(artist_id,content_type=ContentType.ILLUSTRATION,offset=None)
+    artist_name = response['illustrations'][0].user.name
+    directory = Path.cwd() / 'Download' / artist_name
+    if dev == True:
+        print(response)
+        print(len(response['illustrations']))
+    print(f"Downloading... (Total {len(response['illustrations'])} illustrations)")
+    while True:
+        for illust in response['illustrations']:
+            illust.download(directory=directory, size=Size.ORIGINAL)
+
+        if not response['next']:
+            break
+
+        response = client.fetch_user_illustrations(
+            artist_id,
+            offset=response['next'],
+        )
+    print("Complete!")
+    print(f"The downloaded content is in {os.getcwd()}/Download/{artist_name}")
+    os.system(f"open {os.getcwd()}/Download/{artist_name}")
+    print()
