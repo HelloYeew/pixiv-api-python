@@ -8,6 +8,7 @@ import os
 # turn on and turn off dev mode here
 dev = False
 
+
 def fetch_illus_information(client, illustration_id):
     pic = client.fetch_illustration(illustration_id)
     print()
@@ -25,14 +26,14 @@ def fetch_illus_information(client, illustration_id):
     else:
         print(f"Tags : {len(pic.tags)} tags include")
         for i in range(len(pic.tags)):
-            print(f"{i+1}.{pic.tags[i]['name']} ({pic.tags[i]['translated_name']})")
+            print(f"{i + 1}.{pic.tags[i]['name']} ({pic.tags[i]['translated_name']})")
     print(f"ID : {pic.id}")
     if len(pic.tools) == 0:
         print("Tools : No Information")
     else:
         print(f"Tools : {len(pic.tools)} tools include")
         for i in range(len(pic.tools)):
-            print(f"{i+1}.{pic.tools[i]}")
+            print(f"{i + 1}.{pic.tools[i]}")
     print(f"Series : {pic.series}")
     print(f"Width * Height : {pic.width} * {pic.height}")
     print(f"Page Number : {pic.page_count}")
@@ -50,9 +51,12 @@ def fetch_illus_information(client, illustration_id):
     print(f"Bookmarked? : {pic.is_bookmarked}")
     print(f"Muted? : {pic.is_muted}")
     print()
-    full_user_data = input(print("Do you want to see a full data of this artist? (y/n) : "))
-    if full_user_data == "y":
-        fetch_user_information(client, pic.user.id)
+    fetch_related_illustration(client,illustration_id)
+    print("--About the artist")
+    fetch_user_information(client, pic.user.id)
+    # full_user_data = input(print("Do you want to see a full data of this artist? (y/n) : "))
+    # if full_user_data == "y":
+    #     fetch_user_information(client, pic.user.id)
     print()
 
 
@@ -112,14 +116,18 @@ def fetch_user_information(client, user_id):
     print(f"Workspace Image URL : {workspace['workspace_image_url']}")
     print()
 
+
 def download_all_illustration(client, artist_id):
-    response = client.fetch_user_illustrations(artist_id,content_type=ContentType.ILLUSTRATION,offset=None)
+    response = client.fetch_user_illustrations(artist_id, content_type=ContentType.ILLUSTRATION, offset=None)
     artist_name = response['illustrations'][0].user.name
     directory = Path.cwd() / 'Download' / artist_name
-    if dev == True:
+    if dev:
         print(response)
         print(len(response['illustrations']))
-    print(f"Downloading... (Total {len(response['illustrations'])} illustrations)")
+    if response['next'] is not None:
+        print(f"Downloading... (Total {len(response['illustrations']) + int(response['next'])} illustrations)")
+    else:
+        print(f"Downloading... (Total {len(response['illustrations'])} illustrations)")
     while True:
         for illust in response['illustrations']:
             illust.download(directory=directory, size=Size.ORIGINAL)
@@ -134,4 +142,39 @@ def download_all_illustration(client, artist_id):
     print("Complete!")
     print(f"The downloaded content is in {os.getcwd()}/Download/{artist_name}")
     os.system(f"open {os.getcwd()}/Download/{artist_name}")
+    print()
+
+
+def fetch_related_illustration(client, illustration_id):
+    response = client.fetch_illustration_related(illustration_id)
+    if dev:
+        print(response)
+        print(len(response['illustrations']))
+    print("--Related Illustration")
+    for i in range(len(response['illustrations'])):
+        picture = response['illustrations'][i]
+        print(f"{i+1}.{picture.title} by {picture.user.name} ({picture.id})")
+    if response['next'] != None:
+        print(f"Next : {response['next']} results")
+    else:
+        print(f"No more results")
+    print()
+
+def illustration_ranking(client):
+    response = client.fetch_illustration_ranking()
+    if dev:
+        print(response)
+        print(len(response['illustrations']))
+    print("--Related Illustration")
+    for i in range(len(response['illustrations'])):
+        picture = response['illustrations'][i]
+        tag = ""
+        for j in picture.tags:
+            tag_plus = f"{picture.tags[j]['name']} ({picture.tags[i]['translated_name']}),"
+            tag += tag_plus
+        print(f"{i+1}.{picture.title} by {picture.user.name} ({picture.id}) [Tag : ")
+    if response['next'] != None:
+        print(f"Next : {response['next']} results")
+    else:
+        print(f"No more results")
     print()

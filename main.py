@@ -57,6 +57,7 @@ while True:
     print("1.Fetch Full Illustration Detail By ID")
     print("2.Fetch User Detail")
     print("3.Download all illustration from the artist")
+    # print("4.Fetch illustrations ranking")
     print("0.Exit")
     menu = input("Press number from menu to continue : ")
     if menu.isnumeric():
@@ -70,6 +71,8 @@ while True:
         elif menu == 3:
             artist_id = input("Put an artist ID that you want to download : ")
             download_all_illustration(client, artist_id)
+        # elif menu == 4:
+        #     illustration_ranking(client)
         elif menu == 0:
             print("Bye!")
             sys.exit()
